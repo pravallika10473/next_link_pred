@@ -35,8 +35,8 @@ source "$SCRATCH_DIR/venv/bin/activate"
 echo "Python: $(which python)"
 nvidia-smi > "$LOG_DIR/gpu_info.txt" 2>&1
 
-# ensure torchvision matches the installed torch CUDA version
-pip install -q torchvision --index-url https://download.pytorch.org/whl/cu121
+# pin transformers to avoid torchvision.io dependency added in 4.47+
+pip install -q "transformers==4.44.2"
 
 # ── Eval on each saved checkpoint ─────────────────────────────────────────────
 for CKPT in model/link-predictor/checkpoint-387 model/link-predictor/checkpoint-774 model/link-predictor; do

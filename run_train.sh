@@ -45,8 +45,8 @@ source /scratch/general/vast/u1475870/next_link_pred/venv/bin/activate
 echo "Python: $(which python)"
 echo "Python version: $(python --version)"
 
-# ensure torchvision is installed
-pip install -q torchvision --index-url https://download.pytorch.org/whl/cu121
+# pin transformers to avoid torchvision.io dependency added in 4.47+
+pip install -q "transformers==4.44.2"
 
 # ── GPU info ──────────────────────────────────────────────────────────────────
 nvidia-smi > "$LOG_DIR/gpu_info.txt" 2>&1
