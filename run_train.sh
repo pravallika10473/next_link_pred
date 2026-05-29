@@ -47,6 +47,7 @@ nvidia-smi > "$LOG_DIR/gpu_info.txt" 2>&1
 echo "GPU info saved to $LOG_DIR/gpu_info.txt"
 
 # ── Train ─────────────────────────────────────────────────────────────────────
+export PYTORCH_CUDA_ALLOC_CONF=expandable_segments:True
 echo "Starting link prediction training..."
 PYTHONPATH=. python train.py 2>&1 | tee "$LOG_DIR/train_output.txt"
 

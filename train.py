@@ -41,8 +41,8 @@ train_examples = [
     for row in train_data
 ]
 
-# 256 on A100 80GB — more negatives per batch = better signal
-BATCH_SIZE = 256
+# 128 on A100 80GB — all-mpnet needs ~600MB per sequence at 384 tokens
+BATCH_SIZE = 128
 
 train_loader = DataLoader(
     train_examples,
