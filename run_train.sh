@@ -42,6 +42,9 @@ source /scratch/general/vast/u1475870/next_link_pred/venv/bin/activate
 echo "Python: $(which python)"
 echo "Python version: $(python --version)"
 
+# ensure torchvision is installed
+pip install -q torchvision --index-url https://download.pytorch.org/whl/cu121
+
 # ── GPU info ──────────────────────────────────────────────────────────────────
 nvidia-smi > "$LOG_DIR/gpu_info.txt" 2>&1
 echo "GPU info saved to $LOG_DIR/gpu_info.txt"

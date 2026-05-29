@@ -32,6 +32,9 @@ source "$SCRATCH_DIR/venv/bin/activate"
 echo "Python: $(which python)"
 nvidia-smi > "$LOG_DIR/gpu_info.txt" 2>&1
 
+# ensure torchvision is installed (fixes torchvision.io import error)
+pip install -q torchvision --index-url https://download.pytorch.org/whl/cu121
+
 # ── Eval on each saved checkpoint ─────────────────────────────────────────────
 for CKPT in model/link-predictor/checkpoint-387 model/link-predictor/checkpoint-774 model/link-predictor; do
     if [ -d "$CKPT" ]; then
