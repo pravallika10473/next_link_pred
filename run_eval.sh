@@ -35,6 +35,10 @@ source "$SCRATCH_DIR/venv/bin/activate"
 echo "Python: $(which python)"
 nvidia-smi > "$LOG_DIR/gpu_info.txt" 2>&1
 
+# point cargo to scratch so Rust compilation doesn't hit home quota
+export CARGO_HOME="$SCRATCH_DIR/.cargo"
+mkdir -p "$CARGO_HOME"
+
 # pin transformers to avoid torchvision.io dependency added in 4.47+
 pip install -q "transformers==4.44.2"
 
