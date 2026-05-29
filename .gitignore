@@ -1,0 +1,9 @@
+.DS_Store
+__pycache__/
+*.pyc
+model/
+data/cc_news_pairs/
+data/wiki_link_pairs/
+data/reddit_link_pairs/
+hf_cache/
+logs/
