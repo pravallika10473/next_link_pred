@@ -41,7 +41,7 @@ train_examples = [
     for row in train_data
 ]
 
-# On CHPC A100 you can push this to 256 — more negatives per batch = better signal
+# 256 on A100 80GB — more negatives per batch = better signal
 BATCH_SIZE = 256
 
 train_loader = DataLoader(
@@ -116,62 +116,26 @@ print(f"Total steps:  {total_steps:,}")
 print(f"Warmup steps: {warmup_steps:,}  (first 10%)")
 
 # ── Training Loop ─────────────────────────────────────────────────────────────
-from tqdm import tqdm
-
 OUTPUT_DIR = "model/link-predictor"
 os.makedirs(OUTPUT_DIR, exist_ok=True)
 
 print("\nStarting training...")
-model.train()
 
-for epoch in range(EPOCHS):
-    total_loss = 0.0
-    loop = tqdm(train_loader, desc=f"Epoch {epoch+1}/{EPOCHS}")
-
-    for batch in loop:
-        # Step A — pull queries and docs out of the batch
-        queries   = [ex.texts[0] for ex in batch]
-        docs      = [ex.texts[1] for ex in batch]
-
-        # Step B — tokenize: text → token IDs + attention masks
-        query_features = model.tokenize(queries)
-        doc_features   = model.tokenize(docs)
-
-        # move only tensors to device (newer sentence-transformers includes non-tensor values)
-        query_features = {k: v.to(device) if isinstance(v, torch.Tensor) else v for k, v in query_features.items()}
-        doc_features   = {k: v.to(device) if isinstance(v, torch.Tensor) else v for k, v in doc_features.items()}
-
-        # Step C — forward pass through loss
-        # internally: encode both → build [B,B] similarity matrix → cross-entropy
-        loss_value = train_loss([query_features, doc_features], labels=None)
-
-        # Step D — backward pass: compute gradients for all 110M weights
-        loss_value.backward()
-
-        # Step E — gradient clipping: cap gradient norm at 1.0
-        torch.nn.utils.clip_grad_norm_(model.parameters(), max_norm=1.0)
-
-        # Step F — optimizer step: update weights using gradients
-        optimizer.step()
-
-        # Step G — scheduler step: adjust learning rate
-        scheduler.step()
-
-        # Step H — zero gradients so they don't accumulate into next batch
-        optimizer.zero_grad()
-
-        total_loss += loss_value.item()
-        loop.set_postfix(
-            loss=f"{loss_value.item():.4f}",
-            lr=f"{scheduler.get_last_lr()[0]:.2e}"
-        )
-
-    avg_loss = total_loss / len(train_loader)
-    print(f"Epoch {epoch+1} avg loss: {avg_loss:.4f}")
-
-    # Save checkpoint after each epoch
-    ckpt_path = os.path.join(OUTPUT_DIR, f"epoch-{epoch+1}")
-    model.save(ckpt_path)
-    print(f"Checkpoint saved → {ckpt_path}")
+# model.fit() is the modern sentence-transformers API — handles tokenization,
+# device placement, forward pass, backward pass, and checkpointing internally.
+# We pass our optimizer and scheduler so our warmup/decay schedule is respected.
+model.fit(
+    train_objectives=[(train_loader, train_loss)],
+    epochs=EPOCHS,
+    optimizer_class=AdamW,
+    optimizer_params={"lr": LR, "weight_decay": 0.01},
+    scheduler="WarmupLinear",
+    warmup_steps=warmup_steps,
+    output_path=OUTPUT_DIR,
+    checkpoint_path=os.path.join(OUTPUT_DIR, "checkpoints"),
+    checkpoint_save_steps=len(train_loader),  # save once per epoch
+    show_progress_bar=True,
+)
 
 print("\nTraining complete.")
+print(f"Model saved to {OUTPUT_DIR}")

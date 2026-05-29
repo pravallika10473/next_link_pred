@@ -5,7 +5,7 @@
 #SBATCH --time=12:00:00
 #SBATCH --ntasks=1
 #SBATCH --mem=128G
-#SBATCH --gres=gpu:1
+#SBATCH --gres=gpu:a100:1
 #SBATCH --output=/scratch/general/vast/u1475870/next_link_pred/logs/%j/%j_train.out
 #SBATCH --error=/scratch/general/vast/u1475870/next_link_pred/logs/%j/%j_train.err
 #SBATCH --mail-user=pravallikaslurm@gmail.com
