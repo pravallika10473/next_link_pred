@@ -37,6 +37,9 @@ module load cuda/12.5.0
 module load cudnn
 
 # ── Environment ───────────────────────────────────────────────────────────────
+# deactivate conda base so it doesn't conflict with venv
+conda deactivate 2>/dev/null || true
+
 source /scratch/general/vast/u1475870/next_link_pred/venv/bin/activate
 
 echo "Python: $(which python)"

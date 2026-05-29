@@ -27,12 +27,15 @@ module purge
 module load cuda/12.5.0
 module load cudnn
 
+# deactivate conda base so it doesn't conflict with venv
+conda deactivate 2>/dev/null || true
+
 source "$SCRATCH_DIR/venv/bin/activate"
 
 echo "Python: $(which python)"
 nvidia-smi > "$LOG_DIR/gpu_info.txt" 2>&1
 
-# ensure torchvision is installed (fixes torchvision.io import error)
+# ensure torchvision matches the installed torch CUDA version
 pip install -q torchvision --index-url https://download.pytorch.org/whl/cu121
 
 # ── Eval on each saved checkpoint ─────────────────────────────────────────────
