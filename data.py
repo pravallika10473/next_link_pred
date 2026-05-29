@@ -101,10 +101,9 @@ def load_pairs(max_pairs: int = 50_000, seed: int = 42) -> Dataset:
     """
     print("Loading cc_news (streaming)...")
     ds = load_dataset(
-        "cc_news",
+        "sentence-transformers/ccnews",
         split="train",
         streaming=True,
-        trust_remote_code=True,
     )
 
     pairs = []
@@ -113,9 +112,8 @@ def load_pairs(max_pairs: int = 50_000, seed: int = 42) -> Dataset:
     for row in tqdm(ds, desc="Scanning articles"):
         scanned += 1
         title = clean(row.get("title", "") or "")
-        desc  = clean(row.get("description", "") or "")
-        text  = clean(row.get("text",  "") or "")
-        query = strip_domain_suffix(best_query(title, desc))
+        text  = clean(row.get("article", "") or "")
+        query = strip_domain_suffix(title)
 
         if not is_valid(query, text):
             continue
@@ -123,7 +121,7 @@ def load_pairs(max_pairs: int = 50_000, seed: int = 42) -> Dataset:
         pairs.append({
             "query":    query,
             "positive": text[:MAX_TEXT_LEN],
-            "domain":   row.get("domain", ""),
+            "domain":   "",
         })
 
         if len(pairs) >= max_pairs:
