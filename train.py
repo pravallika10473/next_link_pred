@@ -137,9 +137,9 @@ for epoch in range(EPOCHS):
         query_features = model.tokenize(queries)
         doc_features   = model.tokenize(docs)
 
-        # move token tensors to the right device (cuda / mps / cpu)
-        query_features = {k: v.to(device) for k, v in query_features.items()}
-        doc_features   = {k: v.to(device) for k, v in doc_features.items()}
+        # move only tensors to device (newer sentence-transformers includes non-tensor values)
+        query_features = {k: v.to(device) if isinstance(v, torch.Tensor) else v for k, v in query_features.items()}
+        doc_features   = {k: v.to(device) if isinstance(v, torch.Tensor) else v for k, v in doc_features.items()}
 
         # Step C — forward pass through loss
         # internally: encode both → build [B,B] similarity matrix → cross-entropy
