@@ -37,7 +37,7 @@ module load cuda/12.5.0
 module load cudnn
 
 # ── Environment ───────────────────────────────────────────────────────────────
-source /uufs/chpc.utah.edu/common/home/$USER/hit/venv/bin/activate
+source /scratch/general/vast/u1475870/next_link_pred/venv/bin/activate
 
 echo "Python: $(which python)"
 echo "Python version: $(python --version)"
