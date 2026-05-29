@@ -115,15 +115,27 @@ print(f"Epochs:       {EPOCHS}")
 print(f"Total steps:  {total_steps:,}")
 print(f"Warmup steps: {warmup_steps:,}  (first 10%)")
 
-# ── Training Loop ─────────────────────────────────────────────────────────────
+# ── Loss logging ──────────────────────────────────────────────────────────────
+import csv
+
 OUTPUT_DIR = "model/link-predictor"
 os.makedirs(OUTPUT_DIR, exist_ok=True)
 
+LOG_FILE = os.path.join(OUTPUT_DIR, "loss_log.csv")
+
+# Write CSV header
+with open(LOG_FILE, "w", newline="") as f:
+    writer = csv.writer(f)
+    writer.writerow(["epoch", "step", "loss"])
+
+# Callback runs after every step — logs (epoch, step, loss) to CSV
+def loss_callback(score, epoch, steps):
+    with open(LOG_FILE, "a", newline="") as f:
+        writer = csv.writer(f)
+        writer.writerow([epoch, steps, round(score, 6)])
+
 print("\nStarting training...")
 
-# model.fit() is the modern sentence-transformers API — handles tokenization,
-# device placement, forward pass, backward pass, and checkpointing internally.
-# We pass our optimizer and scheduler so our warmup/decay schedule is respected.
 model.fit(
     train_objectives=[(train_loader, train_loss)],
     epochs=EPOCHS,
@@ -135,7 +147,9 @@ model.fit(
     checkpoint_path=os.path.join(OUTPUT_DIR, "checkpoints"),
     checkpoint_save_steps=len(train_loader),  # save once per epoch
     show_progress_bar=True,
+    callback=loss_callback,
 )
 
 print("\nTraining complete.")
 print(f"Model saved to {OUTPUT_DIR}")
+print(f"Loss log saved to {LOG_FILE}")
