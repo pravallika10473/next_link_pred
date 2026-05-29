@@ -54,7 +54,7 @@ PYTHONPATH=. python train.py 2>&1 | tee "$LOG_DIR/train_output.txt"
 if [ $? -eq 0 ]; then
     echo "Training completed successfully"
     echo "Plotting loss curve..."
-    python plot_loss.py
+    python plot_loss.py --log "$LOG_DIR/${SLURM_JOB_ID}_train.out" --out model/link-predictor/loss_curve.png
 else
     echo "Training failed — check $LOG_DIR/train_output.txt"
 fi
