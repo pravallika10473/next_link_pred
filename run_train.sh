@@ -53,6 +53,8 @@ PYTHONPATH=. python train.py 2>&1 | tee "$LOG_DIR/train_output.txt"
 
 if [ $? -eq 0 ]; then
     echo "Training completed successfully"
+    echo "Plotting loss curve..."
+    python plot_loss.py
 else
     echo "Training failed — check $LOG_DIR/train_output.txt"
 fi

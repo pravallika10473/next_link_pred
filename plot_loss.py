@@ -4,6 +4,8 @@ Usage: python plot_loss.py
 """
 
 import csv
+import matplotlib
+matplotlib.use("Agg")  # non-interactive backend — no display needed on SLURM
 import matplotlib.pyplot as plt
 import os
 
@@ -38,4 +40,3 @@ plt.tight_layout()
 out_path = "model/link-predictor/loss_curve.png"
 plt.savefig(out_path, dpi=150)
 print(f"Saved → {out_path}")
-plt.show()
